@@ -1,0 +1,6 @@
+{
+  "name": "Synapse OS",
+  "description": "Unified AI Multi-Agent Executive Dashboard & Operations Hub",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
