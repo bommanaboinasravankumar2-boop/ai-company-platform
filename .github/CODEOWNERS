@@ -1,0 +1,14 @@
+# Global Code Owners for Synapse OS
+# This file defines the default developers requested to review pull requests.
+
+# Default owners for all files
+*       @bommanaboinasravankumar2
+
+# Backend & Server entry point
+/server.ts             @bommanaboinasravankumar2
+
+# GitHub Action configs
+/.github/workflows/    @bommanaboinasravankumar2
+
+# Core CRM components & layouts
+/src/components/       @bommanaboinasravankumar2

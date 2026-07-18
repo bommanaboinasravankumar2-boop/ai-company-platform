@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  synapse-os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: synapse_os_hub
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - APP_URL=${APP_URL:-http://localhost:3000}
+    volumes:
+      - synapse-db:/app/database.json
+
+volumes:
+  synapse-db:
+    name: synapse_persistent_db

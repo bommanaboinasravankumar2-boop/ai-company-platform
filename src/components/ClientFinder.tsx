@@ -31,6 +31,7 @@ import {
   FileSpreadsheet
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import AuditScreenshot from "./AuditScreenshot";
 
 interface ClientFinderProps {
   leads: any[];
@@ -129,6 +130,9 @@ export default function ClientFinder({
 }: ClientFinderProps) {
   // Navigation tabs inside Client Finder
   const [subTab, setSubTab] = useState<"leads" | "discover" | "pipeline" | "proposal" | "outreach" | "scheduler" | "copilot" | "audit">("leads");
+  
+  // Tab selector for the active lead detail view
+  const [leadDetailView, setLeadDetailView] = useState<"summary" | "screenshot">("summary");
 
   // Local helper states
   const [addingLeadOpen, setAddingLeadOpen] = useState(false);
@@ -672,81 +676,120 @@ export default function ClientFinder({
                   </button>
                 </div>
 
-                {/* General Data Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-3 bg-black/40 border border-white/5 rounded-xl space-y-1">
-                    <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block">Firmographic parameters</span>
-                    <p className="text-xs text-white/70"><strong>Size:</strong> {activeLead.size} staff</p>
-                    <p className="text-xs text-white/70"><strong>Revenue:</strong> {activeLead.revenue || "N/A"}</p>
-                    <p className="text-xs text-white/70"><strong>Tech Stack:</strong> {activeLead.techStack}</p>
-                  </div>
-
-                  <div className="p-3 bg-black/40 border border-white/5 rounded-xl space-y-1">
-                    <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block">Direct Contacts</span>
-                    <p className="text-xs text-white/70"><strong>Name:</strong> {activeLead.contactName || "N/A"}</p>
-                    <p className="text-xs text-white/70"><strong>Email:</strong> {activeLead.contactEmail || "N/A"}</p>
-                    <p className="text-xs text-white/70"><strong>Phone:</strong> {activeLead.contactPhone || "N/A"}</p>
-                  </div>
+                {/* Visual View Switcher (Summary vs Screenshot) */}
+                <div className="flex border-b border-white/5 pb-2 gap-4">
+                  <button
+                    onClick={() => setLeadDetailView("summary")}
+                    className={`pb-1.5 text-xs font-bold uppercase font-mono tracking-wider transition-all border-b-2 ${
+                      leadDetailView === "summary"
+                        ? "text-blue-400 border-blue-500"
+                        : "text-white/40 border-transparent hover:text-white"
+                    }`}
+                  >
+                    📋 Executive Summary
+                  </button>
+                  <button
+                    onClick={() => setLeadDetailView("screenshot")}
+                    className={`pb-1.5 text-xs font-bold uppercase font-mono tracking-wider transition-all border-b-2 flex items-center gap-1.5 ${
+                      leadDetailView === "screenshot"
+                        ? "text-blue-400 border-blue-500 font-bold"
+                        : "text-white/40 border-transparent hover:text-white"
+                    }`}
+                  >
+                    📷 Interactive Audit Screenshot
+                    <span className="bg-rose-500 text-white text-[8px] px-1.5 py-0.5 rounded-full animate-pulse uppercase font-sans">
+                      {activeLead.missingFeatures?.length || 4} Gaps
+                    </span>
+                  </button>
                 </div>
 
-                {/* Audit & Capability scorecard */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Conversion Scorecard & Gaps</h4>
-                  <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-3">
-                    <div className="flex items-center gap-2 text-rose-400">
-                      <AlertCircle className="w-4 h-4" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Identified optimization gaps</span>
+                {leadDetailView === "screenshot" ? (
+                  <AuditScreenshot
+                    url={activeLead.website}
+                    companyName={activeLead.companyName}
+                    industry={activeLead.industry}
+                    missingFeatures={activeLead.missingFeatures}
+                    techStack={activeLead.techStack}
+                  />
+                ) : (
+                  <>
+                    {/* General Data Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-3 bg-black/40 border border-white/5 rounded-xl space-y-1">
+                        <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block">Firmographic parameters</span>
+                        <p className="text-xs text-white/70"><strong>Size:</strong> {activeLead.size} staff</p>
+                        <p className="text-xs text-white/70"><strong>Revenue:</strong> {activeLead.revenue || "N/A"}</p>
+                        <p className="text-xs text-white/70"><strong>Tech Stack:</strong> {activeLead.techStack}</p>
+                      </div>
+
+                      <div className="p-3 bg-black/40 border border-white/5 rounded-xl space-y-1">
+                        <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block">Direct Contacts</span>
+                        <p className="text-xs text-white/70"><strong>Name:</strong> {activeLead.contactName || "N/A"}</p>
+                        <p className="text-xs text-white/70"><strong>Email:</strong> {activeLead.contactEmail || "N/A"}</p>
+                        <p className="text-xs text-white/70"><strong>Phone:</strong> {activeLead.contactPhone || "N/A"}</p>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {activeLead.missingFeatures?.map((gap: string, i: number) => (
-                        <span key={i} className="px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg text-xs font-mono font-medium">
-                          • {gap}
-                        </span>
-                      ))}
+
+                    {/* Audit & Capability scorecard */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Conversion Scorecard & Gaps</h4>
+                      <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-3">
+                        <div className="flex items-center gap-2 text-rose-400">
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">Identified optimization gaps</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {activeLead.missingFeatures?.map((gap: string, i: number) => (
+                            <span key={i} className="px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg text-xs font-mono font-medium">
+                              • {gap}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-xs text-white/60 leading-relaxed font-light">
+                          <strong>AI Lead Notes:</strong> {activeLead.notes || "No notes captured."}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs text-white/60 leading-relaxed font-light">
-                      <strong>AI Lead Notes:</strong> {activeLead.notes || "No notes captured."}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Interactive Outbound Action Triggers */}
-                <div className="space-y-3 border-t border-white/10 pt-4">
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Outbound sales tools</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <button
-                      onClick={() => handleWebsiteAudit(activeLead.website, activeLead.companyName)}
-                      className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
-                    >
-                      <Laptop className="w-5 h-5 mx-auto text-blue-400 group-hover:scale-110 transition-all mb-1" />
-                      <span className="block text-[9px] font-bold text-white uppercase">Run Site Audit</span>
-                    </button>
+                    {/* Interactive Outbound Action Triggers */}
+                    <div className="space-y-3 border-t border-white/10 pt-4">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Outbound sales tools</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <button
+                          onClick={() => handleWebsiteAudit(activeLead.website, activeLead.companyName)}
+                          className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
+                        >
+                          <Laptop className="w-5 h-5 mx-auto text-blue-400 group-hover:scale-110 transition-all mb-1" />
+                          <span className="block text-[9px] font-bold text-white uppercase">Run Site Audit</span>
+                        </button>
 
-                    <button
-                      onClick={() => handleGenerateProposal(activeLead.id)}
-                      className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
-                    >
-                      <FileText className="w-5 h-5 mx-auto text-violet-400 group-hover:scale-110 transition-all mb-1" />
-                      <span className="block text-[9px] font-bold text-white uppercase">Draft proposal</span>
-                    </button>
+                        <button
+                          onClick={() => handleGenerateProposal(activeLead.id)}
+                          className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
+                        >
+                          <FileText className="w-5 h-5 mx-auto text-violet-400 group-hover:scale-110 transition-all mb-1" />
+                          <span className="block text-[9px] font-bold text-white uppercase">Draft proposal</span>
+                        </button>
 
-                    <button
-                      onClick={() => handleGenerateEmail(activeLead.id)}
-                      className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
-                    >
-                      <Mail className="w-5 h-5 mx-auto text-emerald-400 group-hover:scale-110 transition-all mb-1" />
-                      <span className="block text-[9px] font-bold text-white uppercase">Write Email</span>
-                    </button>
+                        <button
+                          onClick={() => handleGenerateEmail(activeLead.id)}
+                          className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
+                        >
+                          <Mail className="w-5 h-5 mx-auto text-emerald-400 group-hover:scale-110 transition-all mb-1" />
+                          <span className="block text-[9px] font-bold text-white uppercase">Write Email</span>
+                        </button>
 
-                    <button
-                      onClick={() => setSchedulingOpen(true)}
-                      className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
-                    >
-                      <Calendar className="w-5 h-5 mx-auto text-blue-400 group-hover:scale-110 transition-all mb-1" />
-                      <span className="block text-[9px] font-bold text-white uppercase">Schedule Sync</span>
-                    </button>
-                  </div>
-                </div>
+                        <button
+                          onClick={() => setSchedulingOpen(true)}
+                          className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center transition-all group"
+                        >
+                          <Calendar className="w-5 h-5 mx-auto text-blue-400 group-hover:scale-110 transition-all mb-1" />
+                          <span className="block text-[9px] font-bold text-white uppercase">Schedule Sync</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="text-center py-12 text-white/30">
@@ -909,6 +952,26 @@ export default function ClientFinder({
               </div>
             </div>
           </div>
+
+          {/* Website audit screenshot visualizer */}
+          {websiteAuditUrl && (
+            <div className="bg-[#0b0f17] border border-white/10 rounded-2xl p-6 space-y-4">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <Laptop className="w-4 h-4 text-blue-400 animate-pulse" />
+                📷 Live Website Audit Screenshot Previewer
+              </h3>
+              <p className="text-xs text-white/40 leading-relaxed font-light">
+                Below is the interactive visual representation of <strong className="text-blue-400 font-mono">{websiteAuditUrl}</strong> derived from our crawler nodes. Toggle the upgrade switch to simulate embedding dynamic customer support agents and page speed optimization pipelines.
+              </p>
+              <AuditScreenshot
+                url={websiteAuditUrl}
+                companyName={activeLead?.companyName || "External Audited Client"}
+                industry={activeLead?.industry || "Software & Technology"}
+                missingFeatures={activeLead?.missingFeatures || ["Conversational AI Chatbot", "Static Performance Pipeline", "Localized Multilingual Support", "CRM Form Webhooks"]}
+                techStack={activeLead?.techStack || "Legacy Tech Stack"}
+              />
+            </div>
+          )}
         </div>
       )}
 

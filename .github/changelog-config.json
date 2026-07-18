@@ -1,0 +1,29 @@
+{
+  "categories": [
+    {
+      "title": "🚀 New Features",
+      "labels": ["feature", "feat"]
+    },
+    {
+      "title": "🐛 Bug Fixes",
+      "labels": ["bug", "fix"]
+    },
+    {
+      "title": "🛡️ Security Patches",
+      "labels": ["security"]
+    },
+    {
+      "title": "🧰 Maintenance & Code Quality",
+      "labels": ["chore", "refactor", "style", "test"]
+    },
+    {
+      "title": "📖 Documentation updates",
+      "labels": ["documentation", "docs"]
+    }
+  ],
+  "ignore_labels": [
+    "duplicate",
+    "wontfix",
+    "invalid"
+  ]
+}
