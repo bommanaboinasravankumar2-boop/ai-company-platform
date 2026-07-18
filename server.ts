@@ -250,6 +250,24 @@ function getGeminiClient(): GoogleGenAI {
   return aiClient;
 }
 
+function logGeminiError(context: string, error: any, level: "warn" | "error" = "warn") {
+  const errMsg = error?.message || (typeof error === "string" ? error : JSON.stringify(error)) || "";
+  let cleanMsg = errMsg;
+  
+  if (cleanMsg.includes('"error"') || cleanMsg.includes('"code"') || cleanMsg.includes('"RESOURCE_EXHAUSTED"') || cleanMsg.toLowerCase().includes("quota") || cleanMsg.includes("429")) {
+    cleanMsg = "Google Gemini API Quota Limit Exceeded (429 Rate Limit) or Key Exhausted. Utilizing offline simulation mode.";
+  } else if (cleanMsg.length > 200) {
+    cleanMsg = cleanMsg.substring(0, 200) + "...";
+  }
+  
+  const logString = `[Gemini ${level.toUpperCase()}] ${context} - ${cleanMsg}`;
+  if (level === "error") {
+    console.error(logString);
+  } else {
+    console.warn(logString);
+  }
+}
+
 // 13 Specialized Agent System Instructions
 const AGENT_PERSONAS: Record<string, { name: string; role: string; instructions: string }> = {
   support: {
@@ -360,7 +378,7 @@ app.post("/api/agents/chat", async (req, res) => {
       agentId,
     });
   } catch (error: any) {
-    console.error("Gemini Agent Chat Error:", error);
+    logGeminiError("Agent Chat Error", error, "error");
 
     // Fallback response with clean explanations if key is missing or errored
     const fallbackMessage = `[System Notice: Synapse Simulation Mode Active. To activate real Gemini 3.5 AI brains, please configure your GEMINI_API_KEY in Settings > Secrets.]\n\nHello there! As **${agent.name}** (${agent.role}), I am standing by to assist with your company building. Based on your input ("${message}"), here is a specialized recommendation:\n\n1. **Core Strategy**: Define your value metrics clearly. Focus on solving the absolute highest priority pain point.\n2. **Immediate Action Item**: Plan a lean validation sequence. Speak to at least 5 target users this week.\n3. **Tactical Recommendation**: Leverage modular architectures and automated lifecycle drips to keep operational overhead at absolute zero.\n\nHow should we structure our core pricing and roadmap next?`;
@@ -475,7 +493,7 @@ Include details on:
       text: response.text || "Unable to generate artifact.",
     });
   } catch (error: any) {
-    console.error("Gemini Business Gen Error:", error);
+    logGeminiError("Business Gen Error", error, "error");
 
     // Dynamic, high-quality, pre-written business fallback models based on user input
     let fallbackText = "";
@@ -786,7 +804,7 @@ The JSON object must have EXACTLY this structure:
     }
     res.json({ success: true, live: true, benchmarks });
   } catch (error: any) {
-    console.warn("Could not load live benchmarks from Gemini API, serving cached real metrics:", error.message);
+    logGeminiError("Market Benchmarks", error, "warn");
     res.json({ success: true, live: false, benchmarks });
   }
 });
@@ -1070,7 +1088,7 @@ app.post("/api/client-finder/discover", async (req, res) => {
     res.json({ success: true, live: true, leads: processedLeads });
 
   } catch (error: any) {
-    console.warn("Using smart fallback generator for Discovery Scan (Gemini limits or offline mode):", error.message);
+    logGeminiError("Discovery Scan", error, "warn");
     
     // Dynamic premium filters matching fallback
     let matches = fallbackPool.filter(item => {
@@ -1161,7 +1179,7 @@ app.post("/api/client-finder/analyze-website", async (req, res) => {
     res.json({ success: true, report: response.text });
 
   } catch (error: any) {
-    console.warn("Website analyzer fallback trigger:", error.message);
+    logGeminiError("Website Analyzer", error, "warn");
     const mockReport = `# DIGITAL CAPABILITY AUDIT REPORT: ${companyName || "Target Company"}
 **URL Analyzed**: \`https://${url || "target-domain.com"}\`  
 **Date Evaluated**: 2026-07-18  
@@ -1266,7 +1284,7 @@ app.post("/api/client-finder/generate-proposal", async (req, res) => {
     res.json({ success: true, proposal: newProposal });
 
   } catch (error: any) {
-    console.warn("Proposal generator fallback trigger:", error.message);
+    logGeminiError("Proposal Generator", error, "warn");
     const mockProposal = {
       id: `prop_${Math.random().toString(36).substring(2, 9)}`,
       leadId: lead.id,
@@ -1347,7 +1365,7 @@ app.post("/api/client-finder/generate-email", async (req, res) => {
     res.json({ success: true, email: response.text, language, campaignType });
 
   } catch (error: any) {
-    console.warn("Outbound Email Fallback Triggered:", error.message);
+    logGeminiError("Outbound Email", error, "warn");
     
     // Provide high-fidelity pre-compiled multilingual templates for perfect execution
     let fallbackEmail = "";
@@ -1547,7 +1565,7 @@ app.post("/api/client-finder/ai-assistant", async (req, res) => {
     res.json({ success: true, text: response.text });
 
   } catch (error: any) {
-    console.warn("CRM Sales Assistant fallback trigger:", error.message);
+    logGeminiError("Sales Assistant", error, "warn");
     const hotLeads = db.leads.filter((l: any) => l.score >= 80);
     const fallbackResponse = `### 🤖 AI Sales Co-Pilot Report
 
