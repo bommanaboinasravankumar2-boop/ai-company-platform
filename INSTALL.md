@@ -7,7 +7,7 @@ This guide describes how to install, configure, and boot **Synapse OS** locally.
 ## 📋 Prerequisites
 
 Before starting, ensure your local development system has:
-1. **Node.js:** v18.x, v20.x, or v22.x (Recommended: active LTS v20)
+1. **Node.js:** v20.x or v22.x (Recommended: active LTS v20)
 2. **Package Manager:** `npm` (v10 or higher) or `bun`
 3. **API Access:** A valid Google Gemini API Key (obtainable via [Google AI Studio](https://aistudio.google.com/)).
 

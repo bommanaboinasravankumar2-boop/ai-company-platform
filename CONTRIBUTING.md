@@ -9,7 +9,7 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 ## Development Lifecycle
 
 ### 1. Requirements & Stack
-* **Node.js:** Active LTS (v18, v20, or v22)
+* **Node.js:** Active LTS (v20 or v22)
 * **Framework:** React 19 (Vite), Tailwind CSS v4, Express server.
 * **Typing:** Strict TypeScript typing.
 
