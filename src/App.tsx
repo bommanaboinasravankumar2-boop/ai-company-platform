@@ -435,10 +435,36 @@ export default function App() {
   const [copiedState, setCopiedState] = useState(false);
 
   const handleCopyText = (text: string) => {
-    navigator.clipboard.writeText(text);
+    let success = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+        success = true;
+      } else {
+        // Safe legacy fallback
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        success = document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
+
     setCopiedState(true);
     setTimeout(() => setCopiedState(false), 2000);
-    showNotification("Copied to Clipboard", "Boilerplate/asset copied successfully.");
+    if (success) {
+      showNotification("Copied to Clipboard", "Boilerplate/asset copied successfully.");
+    } else {
+      showNotification("Copy failed", "Please manually select and copy the text.");
+    }
   };
 
   const handleGenerateArtifact = async () => {

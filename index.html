@@ -3,11 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Synapse OS - AI Dashboard</title>
+    <script>
+      // Global error logging & recovery mechanism
+      window.addEventListener('error', function(event) {
+        handleGlobalError(event.error || event.message, 'Uncaught Exception');
+      });
+
+      window.addEventListener('unhandledrejection', function(event) {
+        handleGlobalError(event.reason, 'Unhandled Promise Rejection');
+      });
+
+      function handleGlobalError(error, type) {
+        console.error('[' + type + '] Error captured:', error);
+        
+        var loadingEl = document.getElementById('app-loading-screen');
+        if (loadingEl) {
+          var errMsg = error && (error.message || error.toString()) || 'Unknown runtime error';
+          
+          // Replace loading screen with a friendly recovery interface
+          loadingEl.innerHTML = `
+            <div style="max-width: 420px; background-color: #0d121f; border: 1px solid #f43f5e; border-radius: 16px; padding: 32px 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+              <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; background-color: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: #f43f5e; margin-bottom: 20px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h2 style="font-size: 16px; font-weight: 700; color: #f1f5f9; margin: 0 0 8px 0; text-transform: uppercase; font-family: monospace; letter-spacing: 0.05em;">Launch Sequence Interrupted</h2>
+              <p style="font-size: 12px; color: #94a3b8; margin: 0 0 20px 0; line-height: 1.6;">The application encountered an initialization failure. This is often caused by a network issue, browser caching, or blockages in third-party CDN assets.</p>
+              
+              <div style="background-color: #02040a; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;">
+                <span style="display: block; font-size: 9px; font-family: monospace; color: #64748b; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Diagnostics Log</span>
+                <code style="display: block; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #f43f5e; word-break: break-all; max-height: 80px; overflow-y: auto;">\${type}: \${errMsg}</code>
+              </div>
+              
+              <div style="display: flex; gap: 12px;">
+                <button onclick="window.location.reload(true)" style="flex: 1; background-color: #3b82f6; border: none; color: #02040a; font-weight: 700; font-size: 12px; padding: 10px 16px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; font-family: monospace; text-transform: uppercase; text-align: center;">
+                  Reload Application
+                </button>
+                <button onclick="window.location.href = window.location.pathname" style="background-color: transparent; border: 1px solid #334155; color: #94a3b8; font-weight: 500; font-size: 12px; padding: 10px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: monospace; text-transform: uppercase; text-align: center;">
+                  Reset Cache
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root">
+      <!-- High-fidelity, beautifully designed loading screen that is immediately visible before React mounts -->
+      <div id="app-loading-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #02040a; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 24px; text-align: center;">
+        <div style="position: relative; margin-bottom: 24px; width: 64px; height: 64px;">
+          <!-- Spinning ambient glow ring -->
+          <div style="position: absolute; border: 4px solid rgba(59, 130, 246, 0.1); border-top: 4px solid #3b82f6; border-radius: 50%; width: 100%; height: 100%; animation: spin 1s linear infinite; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);"></div>
+        </div>
+        <h2 style="font-size: 18px; font-weight: 700; margin: 0 0 8px 0; letter-spacing: 0.05em; text-transform: uppercase; color: #f8fafc; font-family: monospace;">Synapse OS</h2>
+        <p style="font-size: 11px; color: #94a3b8; margin: 0; max-width: 280px; line-height: 1.5; font-family: monospace;">Initializing Multi-Agent Executive Dashboard & Operations Hub...</p>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      </div>
+    </div>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
 
