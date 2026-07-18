@@ -16,10 +16,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
+        cache: 'npm'
 
     - name: Install Dependencies & Build
       run: |
-        npm install
+        npm ci
         npm run build
 
     - name: Create Release Changelog
